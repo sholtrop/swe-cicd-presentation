@@ -526,6 +526,20 @@
           </div>
         </section>
         <section class="text-3xl">
+          <h2>Testing frontend</h2>
+          <div class="pt-4 text-2xl w-2/3 text-left mx-auto fragment">
+            If you use a component framework, there are libraries to <span class="text-orange-600">mount individual components</span> with mock-data and test them in isolation
+          </div>
+          <ul class="pt-10 space-y-4 fragment">
+            <li><a href="https://testing-library.com/docs/react-testing-library/intro/">React Testing Library</a></li>
+            <li><a href="https://vue-test-utils.vuejs.org/">Vue Test Utils</a></li>
+            <li><a href="https://testing-library.com/docs/svelte-testing-library/example">Svelte Testing Library</a></li>
+          </ul>
+          <div class="pt-12 text-2xl w-2/3 text-left mx-auto fragment">
+            Try to test only critical application logic instead of every button and UI interaction!
+          </div>
+        </section>
+        <section class="text-3xl">
           <h2>Pytest Example</h2>
           <div class="fragment flex space-x-10 justify-center items-center">
             <img src="assets/test.png" />
@@ -717,12 +731,12 @@
           <img src="assets/gha.png" class="w-10/12" style="margin: auto" />
         </section>
         <section class="text-3xl">
-          <h2>Continuous Development</h2>
+          <h2>Continuous Deployment</h2>
           <div class="text-4xl">
             The <span class="text-orange-600">CD</span> part of CI/CD
           </div>
           <div class="text-3xl fragment mt-12">Go one step further:</div>
-          <div class="text-2xl text-left w-3/4 mx-auto mt-6 fragment">
+          <div class="text-2xl text-left w-3/4 mx-auto mt-6">
             <ol class="ordinal pl-20 space-y-2 fragment">
               <li class="">Write code</li>
               <li class="">Push code</li>
@@ -741,11 +755,25 @@
           </div>
         </section>
         <section class="text-3xl">
-          <h2 class="pb-6">Continuous Development</h2>
-          <div>Many Cloud services offer Continuous Development solutions</div>
-          <div class="mt-8 fragment">We recommend containerizing your application, and deploying to <a href="https://heroku.com">Heroku</a></div>
-          <div class="mt-8 fragment">A guide on how to do this will be available on Brightspace</div>
+          <h2 class="pb-6">Continuous Deployment</h2>
+          <div>Many Cloud services offer Continuous Deployment solutions</div>
+          <div class="mt-8 fragment">We recommend containerizing your application,<br/>and deploying to <a href="https://heroku.com">Heroku</a></div>
+          <div class="mt-8 fragment">A detailed guide on how to do this will be available on Brightspace at some point</div>
           <div class="mt-8 fragment">For now, try to get at least one useful unit test working, and setting up GitHub Actions</div>
+        </section>
+        <section class="text-3xl">
+          <h2>Example repositories with GitHub Actions:</h2>
+          <ul class="space-y-6 pt-10">
+            <li>
+              <a href="https://github.com/ludev-nl/vue-python-template">Vue/Python</a>
+            </li>
+            <li>
+              <a href="https://github.com/ludev-nl/nextjs-template">NextJS</a>
+            </li>
+            <li>
+              <a href="https://github.com/ludev-nl/sveltekit-template">SvelteKit</a>
+            </li>
+          </ul>
         </section>
       </div>
     </div>
