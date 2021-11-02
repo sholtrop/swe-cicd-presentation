@@ -1,0 +1,7 @@
+x invariants - asserts in code
+x te technisch - plaatje
+x ingewikkelde lap code - juist dan testen
+x mention security course - only do SQL injection and give example
+
+docker example - use guide?
+heroku example - continuous deployment

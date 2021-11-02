@@ -1,0 +1,22 @@
+js:     show how to use/import
+        callback explain
+
+7:      classes are space-separated
+        example of how it looks in browser
+
+
+10:     positioning in css in general?
+
+16:     show actual example
+
+19:     underline string components | difference between verbs
+
+24:     maybe remove HTTP requests
+
+28:     Ask question
+
+30:     Some more info
+
+Our website so far - mention that it is the same site
+
+iframe with editable html (jsfiddle?)
