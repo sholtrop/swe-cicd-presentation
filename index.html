@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <title>Testing & CI/CD</title>
+
+    <link rel="stylesheet" href="dist/reset.css" />
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/night.css" id="theme" />
+    <link
+      href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <!-- Theme used for syntax highlighted code -->
+    <link
+      rel="stylesheet"
+      href="plugin/highlight/monokai.css"
+      id="highlight-theme"
+    />
+    <style>
+      .header {
+        position: absolute;
+        bottom: 2rem;
+        left: 2rem;
+        font-size: larger;
+        color: whitesmoke;
+      }
+      .header::before {
+        content: "by Sjors Holtrop";
+      }
+      pre.css-selector-example {
+        display: none !important;
+      }
+      pre.css-selector-example.current {
+        display: block !important;
+      }
+      @keyframes attention {
+        from {
+          transform: scale(2);
+        }
+        to {
+          transform: scale(1);
+        }
+      }
+      .attention {
+        animation: attention;
+        animation-duration: 1.3s;
+      }
+    </style>
+  </head>
+  <body>
+    <h2 class="header"></h2>
+    <div class="reveal">
+      <div class="slides border-t-4 border-orange-600">
+        <section>
+          <div class="flex flex-col items-center">
+            <h2 class="relative">Testing & CI/CD<div class="absolute text-4xl text-orange-600" style="top: 0; right: -1rem">*</div></h2>
+            <h5 class="text-2xl"><span class="text-orange-600">*</span> Continuous Integration/Continuous Deployment</h5>
+            
+            <ul class="pt-20 space-y-5">
+              <li class="fragment">
+                What to test
+                <span class="text-2xl text-orange-500">(why do we test?)</span>
+              </li>
+              <li class="fragment">How to write testable code</li>
+              <li class="fragment">
+                How to test
+                <span class="text-2xl text-orange-500"
+                  >(tools, frameworks)</span
+                >
+                <li class="fragment">What is CI/CD & how to implement</li>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="pb-10">What to test</h2>
+          <table class="divide-y-4 divide-gray-200 w-3/4">
+            <thead class="bg-orange-800">
+              <tr>
+                <th scope="col" class="w-64">Error</th>
+                <th scope="col" style="text-align: right">Prevention</th>
+              </tr>
+            </thead>
+            <tr class="text-3xl fragment h-16">
+              <td class="text-xl">Syntax error</td>
+              <td style="text-align: right">Compiler/Interpreter</td>
+            </tr>
+
+            <tr class="text-3xl h-16">
+              <td class="fragment text-xl">Memory error</td>
+              <td
+                class="fragment"
+                style="line-height: 1.4rem; text-align: right"
+              >
+                Don't use C / C++ <br />
+                <span class="text-base">(or use Valgrind, RAII patterns)</span>
+              </td>
+            </tr>
+
+            <tr class="text-3xl fragment h-16">
+              <td class="text-xl">Type error</td>
+              <td style="text-align: right">Type checker</td>
+            </tr>
+
+            <tr class="text-3xl fragment h-16">
+              <td class="text-xl">Logical error</td>
+              <td class="text-orange-600" style="text-align: right">
+                Unit tests, integration tests
+              </td>
+            </tr>
+          </table>
+        </section>
+        <section>
+          <h3 class="pb-10">What are logical errors?</h3>
+          <div class="flex">
+            <pre
+              class="fragment"
+              style="margin-bottom: 5rem; width: 50%; margin: 0 6rem 0 2rem"
+            >
+            <code
+              class="hljs python text-lg absolute top-0"
+              style="width: 31rem"
+              data-trim
+              data-line-numbers
+            >
+            <script type="text/template">
+              # Python
+              def average(x, y):
+                return x + y / 2
+            </script>
+            </code>
+          </pre>
+            <div class="text-2xl text-left fragment text-red-500">
+              Math error
+            </div>
+          </div>
+
+          <div class="flex mt-20">
+            <pre
+              class="fragment"
+              style="margin-bottom: 5rem; width: 50%; margin: 0 14.5rem 0 2rem"
+            >
+              <code
+                class="hljs js text-lg absolute top-0"
+                style="width: 31rem"
+                data-trim
+                data-line-numbers
+              >
+              <script type="text/template">
+                /* JavaScript
+                Returns true if a and b 
+                have equal contents */
+                function compareObjects(a, b) {
+                  return a === b;
+                }
+              </script>
+              </code>
+            </pre>
+            <div class="text-2xl text-left fragment text-red-500">
+              You misunderstand how something works
+            </div>
+          </div>
+          <div class="text-4xl fragment mt-40">
+            Every programmer will make mistakes in their career!
+          </div>
+        </section>
+        <section>
+          <h2>Unit tests</h2>
+          <div class="fragment relative">
+            <pre style="margin-bottom: 5rem; width: 55%; margin: 0 3rem 0 2rem">
+            <code
+              class="hljs python text-lg absolute top-0"
+              style="width: 37rem"
+              data-trim
+              data-line-numbers="5-7|6"
+            >
+            <script type="text/template">
+              # Python
+              def average(x, y):
+                return x + y / 2
+
+              def test_average():
+                assert average(2, 4) == 3
+                assert average(10, 0) == 5
+            </script>
+            </code>
+          </pre>
+            <div class="fragment text-2xl right-0 absolute w-1/3 text-left">
+              Tip: You can also put <code class="hljs-keyword">assert</code> in
+              your actual code to ensure invariants
+            </div>
+          </div>
+          <div class="flex mt-48 fragment">
+            <pre style="margin-bottom: 5rem; width: 55%; margin: 0 3rem 0 2rem">
+              <code
+                class="hljs js text-lg absolute top-0"
+                style="width: 37rem"
+                data-trim
+                data-line-numbers="5-9|6|7|8"
+              >
+              <script type="text/template">
+                function compareObjects(a, b) {
+                  return a === b;
+                }
+
+                function testCompareObjects() {
+                  const result = compareObjects({ a: 1 }, { a: 1 })
+                  if (result === false)
+                    throw new Error("Assertion error")
+                }
+              </script>
+              </code>
+            </pre>
+          </div>
+        </section>
+        <section class="text-3xl">
+          <h2>Frontend - How to test</h2>
+          <div class="text-orange-600 text-3xl">Testing UIs</div>
+          <div class="mt-6">UIs are hard to test</div>
+          <div class="mt-6">Common strategies include:</div>
+          <ul class="space-y-4 text-2xl pt-6">
+            <li class="fragment flex-col">Unit testing business logic</li>
+            <li class="fragment flex-col">Snapshot testing</li>
+            <li class="fragment flex-col">Component testing</li>
+            <li class="fragment flex-col">End-to-end testing <span class="text-lg text-gray-600">(tests backend as well)</span></li>
+          </ul>
+        </section>
+
+
+
+        <section class="text-3xl">
+          <h2>Frontend - What to test</h2>
+          <div class="text-orange-600 text-3xl">Frontend</div>
+          <div class="mt-8 fragment mb-4 w-2/3 mx-auto text-2xl">
+            If you perform any business logic in the frontend, isolate it and unit test it
+          </div>
+          <pre
+            class="fragment fade-in-then-out"
+            style="
+              width: 70%;
+              margin: 0 2rem 0 2rem;
+              height: 8rem;
+              position: relative;
+            "
+          >
+            <code
+              class="hljs js text-lg absolute top-0"
+              style="width: 56rem"
+              data-trim
+              data-line-numbers="1-3|"
+            >
+            <script type="text/template">
+              // Calculate the average of all the grades. 
+              // Grades only count towards the average if they are present.
+              function calculateAverage(gradeWeights) {
+                let output = 0
+                let divideBy = 0
+                for (const name in gradeWeights) {
+                  if (
+                    gradeWeights[name][0] != null &&
+                    gradeWeights[name][1] != null
+                  ) {
+                    output += Number(
+                      (gradeWeights[name][0] * gradeWeights[name][1]) / 10
+                    )
+                    divideBy += parseFloat(gradeWeights[name][1] / 10)
+                  }
+                }
+                return output;
+              }
+            </script>
+            </code>
+          </pre>
+          <div class="fragment text-2xl">Limited, cannot test visual regressions</div>
+        </section>
+        
+
+        <section class="text-3xl">
+          <h2>Frontend - How to test</h2>
+          <div class="text-orange-600 text-3xl">Snapshot testing</div>
+          <ul class="text-2xl space-y-4 pt-12">
+            <li class="fragment">Serialize your UI (e.g., to HTML)</li>
+            <li class="fragment">Save it (this is the snapshot)</li>
+            <li class="fragment">After a change, make a new snapshot and compare</li>
+            <li class="fragment">Verify that only the things you wanted to change changed</li>
+          </ul>
+          <div class="text-3xl fragment mt-6">Hard to automate, many false positives</div>
+        </section>
+
+        <section class="text-3xl">
+          <h2>Frontend - How to test</h2>
+          <div class="text-orange-600 text-3xl">Component testing</div>
+          <div class="mt-16 text-2xl">Like unit tests, but for UIs</div>
+
+          <div class="mt-8 text-2xl fragment w-2/3 mx-auto">
+            Use libraries to <span class="text-orange-600">mount individual components</span> with mock-data and test them in isolation
+          </div>
+          <ul class="pt-10 space-y-4 fragment text-2xl">
+            <li><a href="https://testing-library.com/docs/react-testing-library/intro/">React Testing Library</a></li>
+            <li><a href="https://vue-test-utils.vuejs.org/">Vue Test Utils</a></li>
+            <li><a href="https://testing-library.com/docs/svelte-testing-library/example">Svelte Testing Library</a></li>
+          </ul>
+          
+          <div class="mt-8 text-3xl fragment">Hinges on you using a component framework</div>
+        </section>
+
+        <section class="text-3xl">
+          <h2>Frontend - How to test</h2>
+          <div class="text-orange-600 text-3xl">Component testing</div>
+          <div class="mt-16 mb-6 text-2xl">Example with Vue</div>
+          <pre
+          class="fragment"
+          style="
+            width: 60%;
+            margin: 0 2rem 0 2rem;
+            position: relative;
+          "
+        >
+          <code
+            class="hljs js text-lg absolute top-0"
+            style="width: 56rem"
+            data-trim
+            data-line-numbers="|2|1,4-5|7,8|10,11|13,14|"
+          >
+          <script type="text/template">
+            import { shallowMount } from '@vue/test-utils'
+            import Counter from '../Counter.vue'
+
+            // create testable wrapped instance of component
+            const wrapper = shallowMount(MyComponent)
+            
+            // counter should at first be 0
+            expect(wrapper.find('[data-test-id=count_value]').text()).toContain('0')
+           
+            // click the increment button
+            await wrapper.find('[data-test-id=count_button').trigger('click')
+            
+            // counter should now be 1
+            expect(wrapper.find('[data-test-id=count_value]').text()).toContain('1')
+          </script>
+          </code>
+        </pre>
+        </section>
+
+       
+        <section class="text-2xl">
+          <h2>Frontend - How to test</h2>
+          <div class="text-orange-600 text-3xl">End-to-end testing</div>
+          <div class="mt-8 mb-6 text-2xl fragment">Also called integration testing</div>
+          <div class="mt-4 text-2xl fragment">Simulate and test the application as a whole, at the user level</div>
+
+          <div class="fragment mt-4 flex flex-col items-center">
+            Seeks to prevent this problem:
+            <img src="assets/unit_test.jpg" class="w-2/3"/>
+          </div>
+          
+        </section>
+
+        <section class="text-2xl">
+          <h2>Frontend - How to test</h2>
+          <div class="text-orange-600 text-3xl">End-to-end testing</div>
+          <div class="fragment mt-6">E2E frameworks often run an entire browser to simulate a user</div>
+          <div class="fragment mt-6">Some include Cypress, Playwright, Selenium, Puppeteer</div>
+          <div class="fragment mt-6 mb-4">Cypress example:</div>
+          <pre
+          class="fragment"
+          style="
+            width: 60%;
+            margin: 0 2rem 0 2rem;
+            position: relative;
+          "
+        >
+          <code
+            class="hljs js text-lg absolute top-0 leading-5"
+            style="width: 40rem; left: 10rem;"
+            data-trim
+            data-line-numbers="|1|2|3|4|"
+          >
+          <script type="text/template">
+              cy.visit('https://our-website.com')
+              const button = cy.contains('counter-button')
+              button.click()
+              cy.contains('counter-value').should('contain', '1')
+          </script>
+          </code>
+        </pre>
+          <div class="text-3xl mt-24 fragment">Can be slow, requires you running/mocking your backend, but testing is very thorough</div>
+        </section>
+
+        <!-- <section class="text-3xl">
+          <h2>Frontend - How to test</h2>
+          <div class="pt-4 text-2xl w-2/3 text-left mx-auto fragment">
+            If you use a component framework, 
+          </div>
+
+          <div class="pt-12 text-2xl w-2/3 text-left mx-auto fragment">
+            Try to test only critical application logic instead of every button and UI interaction!
+          </div>
+        </section> -->
+
+
+        <section class="text-3xl">
+          <h2>What to test</h2>
+          <div class="text-orange-600 text-3xl">Backend</div>
+          <div class="my-4">Backends often are easier/more useful to test</div>
+          <pre
+            class="fragment"
+            style="
+              width: 70%;
+              margin: 0 2rem 0 2rem;
+              height: 8rem;
+              position: relative;
+            "
+          >
+            <code
+              class="hljs python text-lg absolute top-0 leading-snug"
+              style="width: 57rem"
+              data-trim
+              data-line-numbers="1-8|1|2-5|6|7|8"
+            >
+            <script type="text/template">
+                            
+              def test_login(client):
+                """
+                Test whether logging in with incorrect credentials gives an error,
+                correct credentials gives a JWT.
+                """
+                response = login(client, username='wrong', password='wrong')
+                assert response.status_code == 401
+                assert response.get_json().get('error') == 'Invalid username or password'
+            </script>
+            </code>
+          </pre>
+        </section>
+
+
+        
+        <section class="text-3xl">
+          <h2>What to test</h2>
+          <div class="text-orange-600 text-3xl">Backend</div>
+          <div class="my-6 fragment">
+            Your own website is not the only thing that can access the backend!
+          </div>
+          <div class="my-6 fragment">
+            You cannot trust anything that you receive
+          </div>
+          <div class="my-8 fragment">
+            When testing, try to break everything: <br />
+            <ul class="text-xl space-y-5">
+              <li class="fragment mt-5">
+                What happens if a parameter is
+                <code class="font-mono">None</code> /
+                <code class="font-mono">null</code>?
+              </li>
+              <li class="fragment">
+                What happens if someone tries an authorized action<br />without
+                necessary authorization? Expired authorization?
+              </li>
+              <li class="fragment">
+                Is the supplied data valid? (e.g. a valid e-mail address)
+              </li>
+              <li class="fragment">What happens if the same request is sent twice?</li>
+            </ul>
+          </div>
+        </section>
+        <section class="text-3xl">
+          <h2>Testable code</h2>
+          <div class="fragment my-10">Why is this code hard to test?</div>
+          <pre
+            class="fragment"
+            style="
+              width: 70%;
+              margin: 0 2rem 3.5rem 12rem;
+              height: 8rem;
+              position: relative;
+            "
+          >
+            <code
+              class="hljs python text-lg absolute top-0 leading-snug"
+              style="width: 36rem"
+              data-trim
+              data-line-numbers="1-7|3|4,5|6,7|1-7"
+            >
+            <script type="text/template">
+              from datetime import datetime        
+              
+              def switch_light():
+                if datetime.now().time().hour > 20:
+                  light_on()
+                else:
+                  light_off()
+            </script>
+            </code>
+          </pre>
+          <div class="text-2xl fragment text-left ml-64">
+            <div>Answers:</div>
+            <ol class="space-y-2 pt-2 pl-3">
+              <li>Non-determinism</li>
+              <li>Side effects</li>
+            </ol>
+          </div>
+          <div class="fragment">Better:</div>
+          <pre
+            class="fragment"
+            style="
+              width: 70%;
+              margin: 1rem 2rem 0 12rem;
+              height: 8rem;
+              position: relative;
+            "
+          >
+          <code
+            class="hljs python text-lg absolute top-0 leading-snug"
+            style="width: 36rem"
+            data-trim
+            data-line-numbers="1-5|1|2|3-5"
+          >
+          <script type="text/template">
+            def switch_light(now):
+              if now.time().hour > 20:
+                return light_on() # True
+              else:
+                return light_off() # False
+          </script>
+          </code>
+        </pre>
+        </section>
+        <section class="text-3xl">
+          <h2>Dependency Injection</h2>
+          <div class="text-2xl mt-16">
+            Classes/functions <span class="text-orange-600">receive</span> what
+            they need instead of <span class="text-orange-600">taking</span> it
+          </div>
+          <pre
+            class="fragment"
+            style="
+              width: 70%;
+              margin: 3rem 2rem 0 3rem;
+              height: 8rem;
+              position: relative;
+            "
+          >
+            <code
+              class="hljs ts text-lg absolute top-0 leading-snug"
+              style="width: 56rem"
+              data-trim
+              data-line-numbers="1-9|4|6-8"
+            >
+            <script type="text/template">
+              import DbConnection from "./database"
+
+              class Database {
+                private connection: DbConnection;
+
+                constructor() {
+                  this.connection = new DbConnection(`mysql:mydatabase.com?password=abcd`);
+                }  
+              }
+            </script>
+            </code>
+          </pre>
+          <div class="fragment text-2xl mt-32">
+            When running your code while testing, <br />you would always use the
+            production database...
+          </div>
+        </section>
+        <section class="text-3xl">
+          <h2>Dependency Injection</h2>
+          <div class="text-2xl mt-16">Instead, pass it as a parameter:</div>
+          <pre
+            class="fragment"
+            style="
+              width: 70%;
+              margin: 3rem 2rem 0 3rem;
+              height: 8rem;
+              position: relative;
+            "
+          >
+          <code
+            class="hljs ts text-lg absolute top-0 leading-snug"
+            style="width: 56rem"
+            data-trim
+            data-line-numbers="1-9|6,7"
+          >
+          <script type="text/template">
+            import DbConnection from "./database"
+
+            class Database {
+              connection: DbConnection;
+
+              constructor(connection: DbConnection) {
+                this.connection = connection
+              }  
+            }
+          </script>
+          </code>
+        </pre>
+          <div class="text-2xl mt-32 fragment">
+            When testing, you can now pass a fake / different
+            <code class="font-mono">DbConnection</code>
+          </div>
+        </section>
+        <section class="text-3xl">
+          <h2>How to run tests</h2>
+          <div class="text-3xl mt-10">
+            You could organize all the tests yourself...
+          </div>
+          <div class="text-3xl mt-4 fragment">Or use a test framework</div>
+          <div
+            class="
+              fragment
+              flex
+              mt-8
+              w-full
+              space-x-8
+              text-white
+              justify-around
+            "
+          >
+            <a href="https://docs.pytest.org/en/6.2.x/">
+              <img src="assets/pytest.png" />
+              Python
+            </a>
+            <a href="https://jestjs.io/docs/getting-started">
+              <img src="assets/jest.png" style="width: 10.5rem" />
+              JavaScript
+            </a>
+            <a href="https://mochajs.org/#installation">
+              <img
+                src="assets/mochaj.svg"
+                style="width: 10.5rem"
+              />JavaScript</a
+            >
+          </div>
+        </section>
+
+        <section class="text-3xl">
+          <h2>Pytest Example</h2>
+          <div class="fragment flex space-x-10 justify-center items-center">
+            <img src="assets/test.png" />
+            <div class="relative w-1/2">
+              <div class="fragment fade-in-then-out absolute">
+                Add a folder called <code class="font-mono">tests</code>
+              </div>
+              <div class="fragment fade-in-then-out text-left absolute">
+                <code class="font-mono">conftest.py</code> contains test
+                configuration and <span class="text-orange-600">fixtures</span>
+                <div
+                  class="absolute w-24 h-6 bg-orange-700 opacity-25"
+                  style="left: -14rem; top: 1.7rem"
+                ></div>
+              </div>
+              <div class="fragment text-left">
+                <span class="text-orange-600">Fixtures</span> are reusable pieces of test setup/teardown code<br/><span class="text-xl">(general term, not Python specific)</span>
+                <pre
+                  class="fragment"
+                  style="
+                    width: 50%;
+                    left: 0;
+                    bottom: -11rem;
+                    height: 8rem;
+                    position: absolute;
+                  "
+                >
+              <code
+                class="hljs python text-lg absolute top-0 leading-snug"
+                style="width: 32rem"
+                data-trim
+                data-line-numbers="1-11|1|2-5|6|7-11|2"
+              >
+              <script type="text/template">
+                @pytest.fixture()
+                def client(mongodb):
+                    """
+                    Mock client for test functions
+                    """
+                    app.config['TESTING'] = True
+                    with app.app_context():
+                        with app.test_client() as client:
+                            g.testing = True
+                            g.cx = {DB_NAME: mongodb}
+                            yield client
+              </script>
+              </code>
+            </pre>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="text-3xl">
+          <h2 class="pb-20">Pytest Example</h2>
+          <pre
+            class="fragment"
+            style="
+              width: 70%;
+              margin: 0 2rem 0 2rem;
+              height: 8rem;
+              position: relative;
+            "
+          >
+          <code
+            class="hljs python text-lg absolute top-0 leading-snug"
+            style="width: 57rem"
+            data-trim
+            data-line-numbers="1-8|1"
+          >
+          <script type="text/template">
+                          
+            def test_login(client):
+              """
+              Test whether logging in with incorrect credentials gives an error,
+              correct credentials gives a JWT.
+              """
+              response = login(client, username='wrong', password='wrong')
+              assert response.status_code == 401
+              assert response.get_json().get('error') == 'Invalid username or password'
+          </script>
+          </code>
+        </pre>
+        </section>
+        
+        <section class="text-3xl">
+          <h2>Testing</h2>
+          <div class="text-orange-600 mt-4">DRY or not?</div>
+          <div class="mt-16 fragment">Fixtures are nice to avoid needless repetition of setup code</div>
+          <div class="mt-8 fragment">But don't go overboard - Easily readable/searchable test cases are the most important</div>
+          <div class="mt-8 fragment">Repetition in test cases is only natural.<br/>Tolerate it more than you would in normal code</div>
+        </section>
+
+        <section class="text-3xl">
+          <h2>Result</h2>
+          <code class="font-mono text-xl bg-gray-900 p-1"
+            >pytest -v --cov-report=html --cov-report=term-missing --cov=src
+            tests/</code
+          >
+          <div class="relative w-full min-h-screen flex flex-col items-center">
+            <img
+              src="assets/test_passed.png"
+              class="fragment fade-in-then-out absolute"
+            />
+            <img
+              src="assets/coverage.png"
+              class="fragment fade-in-then-out absolute"
+            />
+            <img src="assets/cov.png" class="fragment absolute" />
+          </div>
+        </section>
+        <section class="text-3xl">
+          <h2>Continuous Integration</h2>
+          <div class="text-2xl text-left w-3/4 mx-auto">
+            Instead of big releases every now and then,
+            <span class="text-orange-600">integrate</span> small changes into
+            the codebase <span class="text-orange-600">continuously</span>
+          </div>
+          <div class="text-2xl text-left w-3/4 mx-auto mt-6 fragment">
+            A good set of tests gives you the confidence that your code does not
+            break anything
+          </div>
+          <div class="text-2xl text-left w-3/4 mx-auto mt-6 fragment">
+            <div>Workflow:</div>
+            <ol class="pl-16 space-y-2">
+              <li class="fragment">Write code</li>
+              <li class="fragment">Push code</li>
+              <li class="fragment">Pull request</li>
+              <li class="fragment">
+                <span class="text-orange-600">Continuous Integration service</span>
+               automatically runs your tests
+              </li>
+              <li class="fragment">
+                Merge into master if all the tests succeed
+              </li>
+            </ol>
+          </div>
+        </section>
+        <section class="text-3xl">
+          <h2>How to integrate tests in your workflow</h2>
+          <div class="text-2xl">
+            <a href="https://docs.github.com/en/actions">GitHub Actions</a> is
+            GitHub's built-in Continuous Integration service.<br />You can use
+            it like this:
+          </div>
+          <ol class="pt-6 space-y-2 text-2xl pl-16">
+            <li class="fragment">
+              Add a folder called <code class="font-mono">.github</code> at the
+              root of your repository
+            </li>
+            <li class="fragment">
+              In <code class="font-mono">.github</code> create a folder
+              <code class="font-mono">workflows</code>
+            </li>
+            <li class="fragment">
+              In <code class="font-mono">workflows</code> add a file
+              <code class="font-mono">run_tests.yml</code> (or any name you
+              want)
+            </li>
+            <li class="fragment">
+              <code class="font-mono">run_tests.yml</code> will contain
+              configuration for the GitHub actions, in YAML format:
+              <pre
+                style="width: 55%; margin: 0 2rem 0 2rem; position: relative"
+              >
+                  <code
+                    class="hljs yaml text-lg leading-snug overflow-scroll"
+                    style="width: 57rem; height: 13rem; margin-top: 0.7rem"
+                    data-trim
+                    data-line-numbers="1|2|3|4|4,5|4-6|6,7|6-12|6-15|9-18"
+                  >
+                  <script type="text/template">
+                    name: run-unit-tests
+                    on: [pull_request]
+                    jobs:
+                      run_tests:
+                        runs_on: ubuntu-latest
+                        steps:
+                          - uses: actions/checkout@v2.1.0
+                          
+                          - name: Install Python
+                            uses: actions/setup-python@v2
+                            with:
+                              python-version: "3.6"
+
+                          - name: Install dependencies
+                            run: pip install -r requirements.txt # or any installs
+
+                          - name: Run tests with Pytest
+                            run: pytest tests/
+                  </script>
+                </code>
+              </pre>
+            </li>
+          </ol>
+        </section>
+        <section class="text-3xl">
+          <h2>Result</h2>
+          <img src="assets/gha.png" class="w-10/12" style="margin: auto" />
+        </section>
+
+        <section class="text-2xl">
+          <h2 class="text-3xl">Deployment</h2>
+          <div class="fragment mt-8">At some point, you will want to put your website/app/program online</div>
+          <div class="fragment mt-8">For websites, this means <span class="text-orange-600">hosting</span> them</div>
+          <div class="fragment mt-8">Most often, in the Cloud (AWS, GCP, Azure)</div>
+          <div class="fragment mt-8">
+            <div>Common hosting methods include:</div>
+            <ul class="pt-4 space-y-6">
+              <li class="fragment">Virtual Private Server (VPS) <br/>  <span class="text-base">> You get a VM and install/run everything</span></li>
+              <li class="fragment">Platform-as-a-Service (PaaS)  <br/> <span class="text-base">> You give your app's repository. It will be placed into a VM with a prebuilt image.</span></li>
+              <li class="fragment">Functions-as-a-Service (FaaS) <br/> <span class="text-base">> You give your app's functions. Cloud provider invokes them on request and manages scaling automatically.</span></li>
+            </ul>
+          </div>
+        </section>
+        <section class="text-2xl">
+          <h2 class="text-3xl">Deployment</h2>
+          <div class="text-orange-600 text-3xl">Quick note on hosting</div>
+          <div class="fragment mt-8">We as LUDev have hosting options available</div>
+          <div class="fragment mt-8 w-2/3 mx-auto">If you are at the point where you want to have your website online, come talk to us</div>
+          <div class="fragment mt-8 w-3/4 mx-auto">We have an agreement with Netlify, but there are other options <br/> We will reimburse any costs</div>
+        </section>
+
+        <section class="text-3xl">
+          <h2 class="pb-6">Continuous Deployment</h2>
+          <div class="mt-8 fragment">Not always possible</div>
+          <div class="mt-8 fragment">Important to have a <span class="text-orange-600">reproducible</span> build process and very good tests</div>
+          <div class="mt-8 fragment">For now, try to get at least one useful unit test working, and setting up GitHub Actions</div>
+        </section>
+        <section class="text-3xl">
+          <h2>The example repositories also have GitHub Actions set up already:</h2>
+          <ul class="space-y-6 pt-10">
+            <li>
+              <a href="https://github.com/ludev-nl/vue-python-template">Vue/Python</a>
+            </li>
+            <li>
+              <a href="https://github.com/ludev-nl/nextjs-template">NextJS</a>
+            </li>
+            <li>
+              <a href="https://github.com/ludev-nl/sveltekit-template">SvelteKit</a>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script>
+      // More info about initialization & config:
+      // - https://revealjs.com/initialization/
+      // - https://revealjs.com/config/
+      Reveal.initialize({
+        hash: true,
+        center: false,
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+      });
+
+      function handleFragmentShown({ indexh, indexv }) {}
+
+      Reveal.on("fragmentshown", handleFragmentShown);
+
+      Reveal.on("fragmenthidden", handleFragmentShown);
+
+      Reveal.on("slidechanged", handleFragmentShown);
+    </script>
+  </body>
+</html>
